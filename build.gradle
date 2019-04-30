@@ -23,13 +23,18 @@ dependencies {
 //    implementation 'org.springframework.boot:spring-boot-starter-activemq'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 //    implementation 'org.springframework.boot:spring-boot-starter-cache'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 //    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    testCompile 'io.github.openfeign:feign-core:10.2.0'
+    testCompile 'io.github.openfeign:feign-jackson:10.2.0'
+    testCompile 'io.github.openfeign:feign-slf4j:10.2.0'
+    testCompile 'io.github.openfeign:feign-okhttp:10.2.0'
+    
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.springframework.security:spring-security-test'
 }
