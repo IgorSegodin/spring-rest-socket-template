@@ -54,6 +54,7 @@ public class CachedSecurityContextRepository implements SecurityContextRepositor
 
             authCache.put(jsonAuthentication.getTokenId(), jsonAuthentication);
         } else if (
+                authentication != null &&
                 !(authentication instanceof AnonymousAuthenticationToken)
         ) {
             log.warn("Unknown authentication type {}", authentication);

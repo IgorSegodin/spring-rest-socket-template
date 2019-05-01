@@ -1,10 +1,16 @@
 package org.isegodin.spring.rest.socket.template.system.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ExpiryPolicyBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.core.Ehcache;
+import org.ehcache.event.CacheEventListener;
+import org.ehcache.event.EventFiring;
+import org.ehcache.event.EventOrdering;
+import org.ehcache.event.EventType;
 import org.ehcache.jsr107.Eh107Configuration;
 import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.isegodin.spring.rest.socket.template.system.security.CachedSecurityContextRepository;
@@ -26,10 +32,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.spi.CachingProvider;
+import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.function.Function;
@@ -37,6 +45,7 @@ import java.util.function.Function;
 /**
  * @author isegodin
  */
+@Slf4j
 @Configuration
 @EnableAutoConfiguration(
         exclude = {UserDetailsServiceAutoConfiguration.class}
@@ -49,7 +58,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/logout").authenticated();
+                .antMatchers("/login").permitAll()
+                .antMatchers("/logout").fullyAuthenticated();
 
         http.csrf().disable();
 
@@ -57,8 +67,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .accessDeniedHandler()
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
+        Cache<String, JsonAuthentication> authCache = createAuthCache(event -> {
+            log.info("Auth evict type={}, old={}, new={}", event.getType(), event.getOldValue(), event.getNewValue());
+        });
+
         http.securityContext()
-                .securityContextRepository(new CachedSecurityContextRepository("token-id", createAuthCache()));
+                .securityContextRepository(new CachedSecurityContextRepository("token-id", authCache));
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -76,9 +90,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 UsernamePasswordAuthenticationFilter.class
         );
 
-        http.logout();
-//                .addLogoutHandler()
-//                .permitAll();
+        http.logout()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    if (authentication == null) {
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        JsonAuthentication auth = (JsonAuthentication) authentication;
+                        authCache.remove(auth.getTokenId());
+                        response.setStatus(HttpServletResponse.SC_OK);
+                    }
+                });
     }
 
     private UserDetailsService userDetailsService(Function<String, String> stringStringFunction) {
@@ -92,7 +114,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new InMemoryUserDetailsManager(user);
     }
 
-    private Cache<String, JsonAuthentication> createAuthCache() {
+    private Cache<String, JsonAuthentication> createAuthCache(CacheEventListener<String, JsonAuthentication> cacheEventListener) {
         CachingProvider provider = new EhcacheCachingProvider();
         CacheManager cacheManager = provider.getCacheManager();
 
@@ -103,7 +125,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         ).withExpiry(ExpiryPolicyBuilder.timeToIdleExpiration(Duration.ofMinutes(30)))
                 .build();
 
-        return cacheManager.createCache("auth-token-cache", Eh107Configuration.fromEhcacheCacheConfiguration(nativeEhCacheConfig));
+        Cache<String, JsonAuthentication> cache = cacheManager.createCache("auth-token-cache", Eh107Configuration.fromEhcacheCacheConfiguration(nativeEhCacheConfig));
+
+        Ehcache<String, JsonAuthentication> nativeCache = cache.unwrap(Ehcache.class);
+
+        nativeCache.getRuntimeConfiguration()
+                .registerCacheEventListener(
+                        cacheEventListener,
+                        EventOrdering.UNORDERED, EventFiring.ASYNCHRONOUS, EventType.EVICTED, EventType.EXPIRED, EventType.REMOVED
+                );
+
+        return cache;
     }
 
 }
