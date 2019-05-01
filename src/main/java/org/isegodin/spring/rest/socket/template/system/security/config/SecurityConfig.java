@@ -1,8 +1,15 @@
 package org.isegodin.spring.rest.socket.template.system.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.ehcache.config.CacheConfiguration;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.jsr107.Eh107Configuration;
+import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.isegodin.spring.rest.socket.template.system.security.CachedSecurityContextRepository;
 import org.isegodin.spring.rest.socket.template.system.security.JsonAuthenticationProvider;
+import org.isegodin.spring.rest.socket.template.system.security.data.JsonAuthentication;
 import org.isegodin.spring.rest.socket.template.system.security.filter.JsonAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -20,6 +27,10 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.spi.CachingProvider;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.function.Function;
 
@@ -47,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
         http.securityContext()
-                .securityContextRepository(new CachedSecurityContextRepository());
+                .securityContextRepository(new CachedSecurityContextRepository("token-id", createAuthCache()));
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -79,6 +90,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .build();
 
         return new InMemoryUserDetailsManager(user);
+    }
+
+    private Cache<String, JsonAuthentication> createAuthCache() {
+        CachingProvider provider = new EhcacheCachingProvider();
+        CacheManager cacheManager = provider.getCacheManager();
+
+        CacheConfiguration<String, JsonAuthentication> nativeEhCacheConfig = CacheConfigurationBuilder.newCacheConfigurationBuilder(
+                String.class,
+                JsonAuthentication.class,
+                ResourcePoolsBuilder.heap(5_000)
+        ).withExpiry(ExpiryPolicyBuilder.timeToIdleExpiration(Duration.ofMinutes(30)))
+                .build();
+
+        return cacheManager.createCache("auth-token-cache", Eh107Configuration.fromEhcacheCacheConfiguration(nativeEhCacheConfig));
     }
 
 }

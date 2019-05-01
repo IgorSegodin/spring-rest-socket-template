@@ -22,10 +22,13 @@ repositories {
 dependencies {
 //    implementation 'org.springframework.boot:spring-boot-starter-activemq'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-//    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 //    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    implementation 'org.ehcache:ehcache'
+    implementation 'javax.cache:cache-api'
 
     testCompile 'io.github.openfeign:feign-core:10.2.0'
     testCompile 'io.github.openfeign:feign-jackson:10.2.0'

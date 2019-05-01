@@ -9,10 +9,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
 
+import javax.cache.Cache;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author isegodin
@@ -20,10 +20,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class CachedSecurityContextRepository implements SecurityContextRepository {
 
-    private String tokenIdHeader = "token-id";
+    private final String tokenIdHeader;
 
-    // TODO fixme use cache (EHCache etc.)
-    private static final ConcurrentHashMap<String, JsonAuthentication> authMap = new ConcurrentHashMap<>();
+    private final Cache<String, JsonAuthentication> authCache;
+
+    public CachedSecurityContextRepository(String tokenIdHeader, Cache<String, JsonAuthentication> cache) {
+        this.tokenIdHeader = tokenIdHeader;
+        this.authCache = cache;
+    }
 
     @Override
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
@@ -31,7 +35,7 @@ public class CachedSecurityContextRepository implements SecurityContextRepositor
 
         context.setAuthentication(
                 getTokenIdHeader(requestResponseHolder.getRequest())
-                        .map(authMap::get)
+                        .map(authCache::get)
                         .orElse(null)
         );
 
@@ -48,7 +52,7 @@ public class CachedSecurityContextRepository implements SecurityContextRepositor
         if (authentication instanceof JsonAuthentication) {
             JsonAuthentication jsonAuthentication = (JsonAuthentication) authentication;
 
-            authMap.put(jsonAuthentication.getTokenId(), jsonAuthentication);
+            authCache.put(jsonAuthentication.getTokenId(), jsonAuthentication);
         } else if (
                 !(authentication instanceof AnonymousAuthenticationToken)
         ) {
@@ -58,6 +62,6 @@ public class CachedSecurityContextRepository implements SecurityContextRepositor
 
     @Override
     public boolean containsContext(HttpServletRequest request) {
-        return getTokenIdHeader(request).map(authMap::get).isPresent();
+        return getTokenIdHeader(request).map(authCache::get).isPresent();
     }
 }

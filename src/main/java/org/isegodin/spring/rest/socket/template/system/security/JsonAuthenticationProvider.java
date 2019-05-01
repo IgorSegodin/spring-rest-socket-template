@@ -2,14 +2,12 @@ package org.isegodin.spring.rest.socket.template.system.security;
 
 import org.isegodin.spring.rest.socket.template.system.security.data.JsonAuthentication;
 import org.isegodin.spring.rest.socket.template.system.security.data.JsonAuthenticationDetails;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,8 +21,6 @@ import java.util.UUID;
 
 public class JsonAuthenticationProvider implements AuthenticationProvider {
 
-    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-
     private UserDetailsService userDetailsService;
     private PasswordEncoder passwordEncoder;
 
@@ -36,9 +32,7 @@ public class JsonAuthenticationProvider implements AuthenticationProvider {
     @Override
     public JsonAuthentication authenticate(Authentication authentication) throws AuthenticationException {
         if (authentication.getCredentials() == null) {
-            throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials",
-                    "Bad credentials"));
+            throw new BadCredentialsException("Bad credentials");
         }
 
         UserDetails loadedUser = userDetailsService.loadUserByUsername(String.valueOf(authentication.getPrincipal()));
@@ -51,9 +45,7 @@ public class JsonAuthenticationProvider implements AuthenticationProvider {
         String presentedPassword = authentication.getCredentials().toString();
 
         if (!passwordEncoder.matches(presentedPassword, loadedUser.getPassword())) {
-            throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials",
-                    "Bad credentials"));
+            throw new BadCredentialsException("Bad credentials");
         }
 
         String tokenId = new String(Base64.getEncoder().encode(
