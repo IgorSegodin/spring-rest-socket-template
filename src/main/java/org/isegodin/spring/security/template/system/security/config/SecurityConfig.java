@@ -1,4 +1,4 @@
-package org.isegodin.spring.rest.socket.template.system.security.config;
+package org.isegodin.spring.security.template.system.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +13,10 @@ import org.ehcache.event.EventOrdering;
 import org.ehcache.event.EventType;
 import org.ehcache.jsr107.Eh107Configuration;
 import org.ehcache.jsr107.EhcacheCachingProvider;
-import org.isegodin.spring.rest.socket.template.system.security.CachedSecurityContextRepository;
-import org.isegodin.spring.rest.socket.template.system.security.JsonAuthenticationProvider;
-import org.isegodin.spring.rest.socket.template.system.security.data.JsonAuthentication;
-import org.isegodin.spring.rest.socket.template.system.security.filter.JsonAuthenticationFilter;
+import org.isegodin.spring.security.template.system.security.CachedSecurityContextRepository;
+import org.isegodin.spring.security.template.system.security.JsonAuthenticationProvider;
+import org.isegodin.spring.security.template.system.security.data.JsonAuthentication;
+import org.isegodin.spring.security.template.system.security.filter.JsonAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;

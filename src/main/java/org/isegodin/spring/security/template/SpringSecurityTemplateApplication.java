@@ -1,13 +1,13 @@
-package org.isegodin.spring.rest.socket.template;
+package org.isegodin.spring.security.template;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringRestSocketTemplateApplication {
+public class SpringSecurityTemplateApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringRestSocketTemplateApplication.class, args);
+        SpringApplication.run(SpringSecurityTemplateApplication.class, args);
     }
 
 }

@@ -1,4 +1,4 @@
-package org.isegodin.spring.rest.socket.template.app.data;
+package org.isegodin.spring.security.template.system.security.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,9 +10,10 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class TempData {
-    private String name;
-    private long timestamp;
+@NoArgsConstructor
+public class AuthRequestDto {
+
+    private String username;
+    private String password;
 }

@@ -1,6 +1,6 @@
-package org.isegodin.spring.rest.socket.template.app.controller;
+package org.isegodin.spring.security.template.app.controller;
 
-import org.isegodin.spring.rest.socket.template.app.data.TempData;
+import org.isegodin.spring.security.template.app.data.TempData;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

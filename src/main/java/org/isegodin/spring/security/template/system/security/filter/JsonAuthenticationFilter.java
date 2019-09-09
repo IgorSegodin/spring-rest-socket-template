@@ -1,10 +1,10 @@
-package org.isegodin.spring.rest.socket.template.system.security.filter;
+package org.isegodin.spring.security.template.system.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.isegodin.spring.rest.socket.template.system.security.data.AuthRequestDto;
-import org.isegodin.spring.rest.socket.template.system.security.data.AuthResponseDto;
-import org.isegodin.spring.rest.socket.template.system.security.data.JsonAuthentication;
+import org.isegodin.spring.security.template.system.security.data.AuthRequestDto;
+import org.isegodin.spring.security.template.system.security.data.AuthResponseDto;
+import org.isegodin.spring.security.template.system.security.data.JsonAuthentication;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

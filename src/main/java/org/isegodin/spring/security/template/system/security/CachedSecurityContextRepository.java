@@ -1,7 +1,7 @@
-package org.isegodin.spring.rest.socket.template.system.security;
+package org.isegodin.spring.security.template.system.security;
 
 import lombok.extern.slf4j.Slf4j;
-import org.isegodin.spring.rest.socket.template.system.security.data.JsonAuthentication;
+import org.isegodin.spring.security.template.system.security.data.JsonAuthentication;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;

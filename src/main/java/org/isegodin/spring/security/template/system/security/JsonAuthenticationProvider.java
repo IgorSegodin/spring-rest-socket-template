@@ -1,7 +1,7 @@
-package org.isegodin.spring.rest.socket.template.system.security;
+package org.isegodin.spring.security.template.system.security;
 
-import org.isegodin.spring.rest.socket.template.system.security.data.JsonAuthentication;
-import org.isegodin.spring.rest.socket.template.system.security.data.JsonAuthenticationDetails;
+import org.isegodin.spring.security.template.system.security.data.JsonAuthentication;
+import org.isegodin.spring.security.template.system.security.data.JsonAuthenticationDetails;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;

@@ -1,4 +1,4 @@
-package org.isegodin.spring.rest.socket.template.system.security.data;
+package org.isegodin.spring.security.template.system.security.data;
 
 import lombok.Builder;
 import lombok.Data;
